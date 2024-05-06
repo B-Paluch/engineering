@@ -1,0 +1,99 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: blogstorage
+provisioner: docker.io/hostpath
+volumeBindingMode: Immediate
+reclaimPolicy: Delete
+allowVolumeExpansion: True
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blog-config
+  labels:
+    app: blog
+data:
+  SOURCE: "http://uploader:8999"
+  KAFKA_HOST: "kafka:9092"
+  PG_USER: "docker"
+  PG_PASS: "qwe123"
+  PG_HOST: "postgres"
+  PG_PORT: "5432"
+  PG_DBNAME: "blog"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: blog-persistent-volume-claim
+spec:
+  storageClassName: blogstorage
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+
+# How do we want it implemented
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: blog-storage
+spec:
+  storageClassName: blogstorage
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/C/blog"
+    type: DirectoryOrCreate
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog
+spec:
+  selector:
+    matchLabels:
+      app: blog
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: blog
+    spec:
+      volumes:
+        - name: blog-volume-storage
+          persistentVolumeClaim:
+            claimName: blog-persistent-volume-claim
+      containers:
+        - name: blog
+          image: bfinger1997/blog
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/sh","-c" ]
+          args: [ "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8001 " ]
+          ports:
+            - containerPort: 8001
+          envFrom:
+            - configMapRef:
+                name: blog-config
+          volumeMounts:
+            - mountPath: /code/data
+              name: blog-volume-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blog
+  labels:
+    app: blog
+spec:
+  type: NodePort
+  ports:
+    - port: 8001
+  selector:
+    app: blog

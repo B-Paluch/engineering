@@ -1,0 +1,38 @@
+server:
+  port: ${LOGGER_PORT:8888}
+
+spring:
+  cloud:
+    stream:
+      function:
+        definition: log;logIt
+      bindings:
+        log-in-0:
+          destination: photoSavedToBlog,fileSaved,processingSucceded,processingFailed,fileListed,articleCreated,articleUpdated,commentCreated,commentCensored,articleCensored
+        log-out-0:
+          destination: log
+      kafka:
+        binder:
+          brokers: ${BROKER_IP:localhost}:${BROKER_PORT:9092}
+          auto-create-topics: true
+          configuration:
+            auto.offset.reset: latest
+  sql:
+    init:
+      mode: always
+      platform: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+spring.main.banner-mode: off
+logging.level.org.springframework: ERROR
+
+spring.datasource.url: jdbc:postgresql://${POSTGRES_IP:localhost}:${POSTGRES_PORT:5432}/${LOG_DB:logDB} #docker
+spring.datasource.username: ${LOGGER_USERNAME:postgres}
+spring.datasource.password: ${LOGGER_PASSWORD:qwe123}
+
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation: true
+spring.servlet.multipart.max-file-size: 2MB
+spring.servlet.multipart.max-request-size: 2MB
+server.error.include-stacktrace: always

@@ -1,0 +1,142 @@
+INSTALACJA W SKRÓCIE
+Windows 10/11, WSL2, jakiś system linux wspierający docker desktop
+instalujemy poniższy stack narzędzi:
+docker-desktop
+chocolatey
+kubectl
+helm
+java jdk 11 + maven(jeżeli zamierza się wprowadzać zmiany)
+conda + python + pip(jeżeli zamierza się wprowadzać zmiany)
+intellij/pycharm(opcjonalnie) + rozszerzenia docker, kubernetes, redhat-kubernetes(dla uproszczenia)
+PEŁNY PROCES INSTALACYJNY
+Instalacja zakłada wykorzystanie windows 10/11 w wersji wspierającej WSL2
+Należy uruchomić WSL2 zgodnie z instrukcją:
+https://pl.telusuri.info/articles/insider/kak-ustanovit-wsl-2-podsistemu-windows-dlya-linux-2-v-windows-10.html
+A następnie linux ubuntu/debian ze sklepu microsoft store
+Należy zainstalować poniższe narzędzia:
+docker desktop
+https://docs.docker.com/desktop/windows/install/
+a następnie w opcjach uruchomić kubernetes.
+chocolatey
+https://docs.chocolatey.org/en-us/choco/setup
+jest to pakiet narzędzi windows.
+Anaconda
+https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html
+UWAGA należy zainstalować pełną wersję. Zawiera ona wszelkie niezbędne do działania w lokalnym środowisku narzędzia.
+Kubectl
+https://community.chocolatey.org/packages/kubernetes-cli
+Helm
+https://community.chocolatey.org/packages/kubernetes-helm
+Narzędzia intellij/pycharm w wersji ultimate
+https://www.jetbrains.com/idea/download/#section=windows
+https://www.jetbrains.com/pycharm/download/#section=windows
+
+Po instalacji narzędzi uruchom ponownie komputer.
+
+Uruchomienie lokalne:
+
+Wykonaj polecenie w położeniu tego pliku
+docker-compose up
+
+serwisy zostaną udostępnione pod adresem lokalnym z określonymi portami.
+
+Uruchomi to stos aplikacji w środowisku lokalnym wewnątrz kontenerów docker z automatycznie skonfigurowaną siecią, kafką, bazą danych oraz pozostałymi niezbędnymi do działania serwisów usługami.
+
+Deployment w lokalnym kubernetes:
+UWAGA, BUILD WYMAGA WYCZYSZCZENIA ISTNIEJĄCYCH OBRAZÓW DOCKER ORAZ INSTANCJI
+    W przypadku problemu wykonaj poniższe komendy z odstępem czasowym ok 30s-2min tak, aby klaster miał możliwość zapewnić
+    uruchomienie zależności przy słabszej maszynie(testowane na 32GB ram, i7 8 rdzeni, potrafiło zwiesić i zmusić do konieczności resetu klastra i reinstalacji):
+docker-compose down
+docker rm -f $(docker ps -a -q)
+docker volume rm $(docker volume ls -q)
+docker image rm $(docker image ls -q)
+Zresetuj kubernetes w opcjach docker desktop.
+kubectl delete pvc --all
+kubectl delete pv --all
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install zookeeper bitnami/zookeeper --set replicaCount=2 --set auth.enabled=false --set allowAnonymousLogin=true
+helm install kafka bitnami/kafka --set zookeeper.enabled=false --set replicaCount=2 --set externalZookeeper.servers=zookeeper --set autoCreateTopicsEnable=true
+kubectl apply -f .\postgres\deployment.yaml
+Poczekaj chwilę aby baza danych została uruchomiona ok 1min
+docker-compose build
+cd blog_app
+docker build . -f kubernetesdockerfile -t finger1997/blog
+cd ..
+kubectl apply -f .\blog_app\deployment.yaml
+kubectl apply -f .\censor\deployment.yaml
+kubectl apply -f .\ai/deployment.yaml
+kubectl apply -f .\fileuploader\deployment.yaml
+kubectl apply -f .\logs\deployment.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
+kubectl apply -f .\dashboard\deployment.yaml
+Instrukcję odpalenia dashboardu znajdują się w folderu dashboard
+Jeżeli kolejność została nieprawidłowo wykonana a któraś usługa po wpisaniu
+kubectl get pods
+nie działa po paru minutach,
+ zresetuj kubernetes i zainstaluj ponownie z większą dokładnością.
+
+Aby sprawdzić dostępne porty do serwisów należy wpisać:
+kubectl get services --all-namespaces
+Do lokalnych usług łączymy się przez localhost:port gdzie portem jest port PO PRAWEJ STRONIE
+
+DEPLOYMENT W AZURE AKS
+Na rzecz deploymentu w azure AKS utworzono odpowiednie repozytoria bfinger1997/...
+
+Zainstaluj shell azure
+https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+Utwórz konto AWS
+https://azure.microsoft.com/pl-pl/services/kubernetes-service/
+I utwórz klaster kubernetes services
+Przy tworzeniu klastra wybierz routing http oraz ustaw dns aby utworzyć endpoint dostępny w sieci
+Na potrzeby tego projektu wystarczy jeden węzęł wirtualny
+Zaloguj się do AZ
+az login
+Dodaj repozytorium wolumenów(zapomniałem że wcześniej to zrobiłem)
+az provider register --namespace Microsoft.Storage
+zostaniesz przekierowany w przeglądarce, wybierz konto które posiada utworzony klaster
+Połącz się z shell azure zgodnie z poradnikiem:
+https://docs.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-cluster?tabs=azure-cli
+W wartości --name oraz --resource-group wpisz wartości wybrane przy tworzeniu klastra.
+Wykonaj polecenia instalacyjne poniżej.
+
+kubectl apply -f .\postgres\deployment-azure.yaml
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install zookeeper bitnami/zookeeper --set replicaCount=2 --set auth.enabled=false --set allowAnonymousLogin=true
+helm install kafka bitnami/kafka --set zookeeper.enabled=false --set replicaCount=2 --set externalZookeeper.servers=zookeeper --set autoCreateTopicsEnable=true
+Poczekaj chwilę aby baza danych została uruchomiona ok 1min
+kubectl apply -f .\blog_app\deployment-azure.yaml
+kubectl apply -f .\censor\deployment.yaml
+kubectl apply -f .\ai\deployment.yaml
+kubectl apply -f .\fileuploader\deployment-azure.yaml
+kubectl apply -f .\logs\deployment-azure.yaml
+
+Zamiast dashboard Azure zaleca wykorzystanie
+https://docs.microsoft.com/pl-pl/azure/aks/kubernetes-portal
+
+Aby sprawdzić dostępny adress klastera do serwisów należy wpisać:
+kubectl get services --all-namespaces
+Do AKS kubernetes łączymy się przez wartość w EXTERNAL_IP:port gdzie port jest PORTEM PO LEWEJ STRONIE
+UWAGA klaster wykorzystuje NGINX LoadBalancer, z tego powodu porty są po LEWEJ STRONIE
+W Lokalnym deployment'cie wykorzystujemy nodeport oraz jeden Node
+
+Konfigurację sprawdzono:
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                      AGE
+blog                 LoadBalancer   10.0.15.197    40.74.9.21     8001:32205/TCP               4m
+kafka                ClusterIP      10.0.62.209    <none>         9092/TCP                     4m7s
+kafka-headless       ClusterIP      None           <none>         9092/TCP,9093/TCP            4m7s
+kubernetes           ClusterIP      10.0.0.1       <none>         443/TCP                      11m
+logs                 NodePort       10.0.198.108   <none>         8888:31079/TCP               2m59s
+postgres             LoadBalancer   10.0.137.122   40.74.9.6      5432:30816/TCP               4m35s
+uploader             LoadBalancer   10.0.25.210    40.74.11.128   8999:30304/TCP               3m45s
+zookeeper            ClusterIP      10.0.1.87      <none>         2181/TCP,2888/TCP,3888/TCP   4m23s
+zookeeper-headless   ClusterIP      None           <none>         2181/TCP,2888/TCP,3888/TCP   4m23s
+
+http://40.74.11.128:8999/ ukazuje
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Mon Dec 27 17:30:32 GMT 2021
+There was an unexpected error (type=Not Found, status=404).
+
+Zgodnie z założeniem

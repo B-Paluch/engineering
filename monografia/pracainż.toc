@@ -1,0 +1,25 @@
+\babel@toc {polish}{}\relax 
+\contentsline {section}{Wykaz symboli, oznaczeń i skrótów}{\footnotesize 5}{}%
+\contentsline {section}{\numberline {1}Wstęp}{\footnotesize 7}{}%
+\contentsline {section}{\numberline {2}Mikroserwisy i konteneryzacja}{\footnotesize 11}{}%
+\contentsline {subsection}{\numberline {2.1}Aktualny stan wiedzy}{\footnotesize 11}{}%
+\contentsline {subsection}{\numberline {2.2}Mikroserwisy}{\footnotesize 11}{}%
+\contentsline {subsection}{\numberline {2.3}Konteneryzacja}{\footnotesize 14}{}%
+\contentsline {subsection}{\numberline {2.4}Kubernetes}{\footnotesize 16}{}%
+\contentsline {section}{\numberline {3}Tworzenie i wdrażanie skonteneryzowanego stosu mikroserwisów }{\footnotesize 19}{}%
+\contentsline {subsection}{\numberline {3.1}Implementacja mikroserwisów}{\footnotesize 19}{}%
+\contentsline {subsubsection}{\numberline {3.1.1}Sposób implementacji}{\footnotesize 19}{}%
+\contentsline {subsubsection}{\numberline {3.1.2}Komunikacja z mikroserwisami}{\footnotesize 21}{}%
+\contentsline {subsubsection}{\numberline {3.1.3}Opis połączeń między aplikacjami}{\footnotesize 22}{}%
+\contentsline {subsection}{\numberline {3.2}Wprowadzenie konteneryzacji}{\footnotesize 23}{}%
+\contentsline {subsubsection}{\numberline {3.2.1}Obrazy kontenerów}{\footnotesize 23}{}%
+\contentsline {subsubsection}{\numberline {3.2.2}Stos kontenerów}{\footnotesize 27}{}%
+\contentsline {subsection}{\numberline {3.3}Wdrożenie usług skonteneryzowanych}{\footnotesize 30}{}%
+\contentsline {subsubsection}{\numberline {3.3.1}Klaster lokalny}{\footnotesize 30}{}%
+\contentsline {subsubsection}{\numberline {3.3.2}Klaster publiczny}{\footnotesize 35}{}%
+\contentsline {subsection}{\numberline {3.4}Efekt działania wdrożonej aplikacji}{\footnotesize 37}{}%
+\contentsline {subsection}{\numberline {3.5}Sposób sprawdzenia uzyskanego stosu}{\footnotesize 39}{}%
+\contentsline {subsection}{\numberline {3.6}Zastosowania przy tworzeniu i wdrażaniu aplikacji webowych}{\footnotesize 41}{}%
+\contentsline {section}{\numberline {4}Podsumowanie i wnioski końcowe}{\footnotesize 47}{}%
+\contentsline {section}{Załączniki}{\footnotesize 49}{}%
+\contentsline {section}{Literatura}{\footnotesize 50}{}%

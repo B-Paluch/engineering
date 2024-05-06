@@ -1,0 +1,27 @@
+Pliki powstały na podstawie dokumentacji, własnych pomysłów oraz rozwiązań problemów z którymi się zetknięto przy pomocy stackoverflow(długie godziny szukania rozwiązań).
+Deployment zakłada plik deployment-azure jeżeli takowy istnieje.
+
+docker-compose
+ai:
+    deployment.yaml, ai.env, dockerfile, main.py
+    modyfikacja network/detect.py aby był funkcją odpalaną z innego skryptu zamiast okna opencv2
+blog_app:
+    dockerfile, deployment.env, blog.env, requirements.txt(lista zainstalowanych pakietów przez pip, wygenerowana przez freeze)
+    blog/ isOwner.py(przykład z stackoverflow), models.py, serializers.py, urls.py, views.py
+censor:
+    całość za wyjątkiem venv i .idea
+dashboard: na podstawie tutoriala z dokumentacji
+fileuploader:
+    pliki w src/main/java/prz/paluch/fileuploader za wyjątkiem FileuploaderApplication.java
+    konfiguracja w application.yaml
+    zmiany w pliku pom, wygenerowane na podstawie springinitzr oraz maven repository
+kafka:
+    deployment.txt
+    zmiany na potrzeby lokalnej instalacji
+logs:
+    pliki w src/main/java/prz/paluch/logs za wyjątkiem LogsApplication.java
+    konfiguracja w application.yaml
+    zmiany w pliku pom, wygenerowane na podstawie springinitzr oraz maven repository
+database: wygenerowane przez postgres podczas testowania wolumenu.
+postgres: wszystkie pliki.
+dashboard: tutorial local

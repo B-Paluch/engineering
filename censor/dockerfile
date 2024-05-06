@@ -1,0 +1,12 @@
+FROM python:3.8
+RUN mkdir /code
+WORKDIR /code
+ADD . /code/
+RUN pip install -r requirements.txt
+RUN python -m spacy download en
+LABEL Maintainer = Bartlomiej Paluch
+LABEL Image = alpine installs pip really long time, python 3.9 doesnt support confluent-kafka
+ENV BLOG_HOST = http://blog:8001/api
+
+RUN python3 -m pip install -r requirements.txt
+CMD ["python3", "confluent.py"]
